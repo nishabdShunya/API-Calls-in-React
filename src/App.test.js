@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import App from "./App";
 
@@ -11,13 +11,15 @@ test("App component renders error message when request fails", async () => {
   expect(fetchMoviesButton).toBeInTheDocument();
 
   // Mock the fetch function to return a rejected Promise with an error message
-  global.fetch = jest.fn().mockRejectedValue(new Error("Test error"));
+  global.fetch = jest
+    .fn()
+    .mockRejectedValue(new Error("Something went wrong!"));
 
   // Simulate a click on the "Fetch Movies" button
   fireEvent.click(fetchMoviesButton);
 
   // Check if error message is displayed
-  const errorMessage = await screen.findByText("Test error");
+  const errorMessage = await screen.findByText("Something went wrong!");
   expect(errorMessage).toBeInTheDocument();
 
   // Check if loading message is not displayed after encountering an error
