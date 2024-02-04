@@ -1,31 +1,33 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import App from "./App";
 
-test("App component renders error message when request fails", async () => {
-  render(<App />);
+describe("App component fetches movies on app load and", () => {
+  test("renders loading text while fetching movies", async () => {
+    render(<App />);
+    const loadingElement = screen.getByText(/Loading.../i);
+    expect(loadingElement).toBeInTheDocument();
+  });
 
-  // Check if the "Fetch Movies" button is rendered
-  const fetchMoviesButton = screen.getByText("Fetch Movies");
-  expect(fetchMoviesButton).toBeInTheDocument();
+  test("renders movies when movies are fetched successfully", async () => {
+    // Mock the fetch function to return some dummy movies
+    jest.spyOn(global, "fetch").mockResolvedValueOnce({
+      json: async () => ({ results: [{ episode_id: 1, title: "Movie 1" }] }),
+      ok: true,
+    });
 
-  // Mock the fetch function to return a rejected Promise with an error message
-  global.fetch = jest
-    .fn()
-    .mockRejectedValue(new Error("Something went wrong!"));
+    render(<App />);
+    const movieElement = await screen.findByText(/Movie 1/i);
+    expect(movieElement).toBeInTheDocument();
+  });
 
-  // Simulate a click on the "Fetch Movies" button
-  fireEvent.click(fetchMoviesButton);
+  test("renders error message when there's an error fetching movies", async () => {
+    // Mock the fetch function to simulate an error
+    jest.spyOn(global, "fetch").mockRejectedValueOnce(new Error("Test error"));
 
-  // Check if error message is displayed
-  const errorMessage = await screen.findByText("Something went wrong!");
-  expect(errorMessage).toBeInTheDocument();
-
-  // Check if loading message is not displayed after encountering an error
-  const loadingMessage = screen.queryByText("Loading...");
-  expect(loadingMessage).not.toBeInTheDocument();
-
-  // Restore the original fetch function
-  global.fetch.mockRestore();
+    render(<App />);
+    const errorMessageElement = await screen.findByText(/Test error/i);
+    expect(errorMessageElement).toBeInTheDocument();
+  });
 });
