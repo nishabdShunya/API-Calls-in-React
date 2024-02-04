@@ -18,3 +18,25 @@
   margin: 0;
   font-size: 1rem;
 }
+
+.delete-btn {
+  background-color: lightcoral;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 20px;
+}
+
+.delete-btn:hover {
+  background: tomato;
+}
+
+.movie div:nth-child(2) {
+  flex: 4;
+}
+
+.movie div:nth-child(1) {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
