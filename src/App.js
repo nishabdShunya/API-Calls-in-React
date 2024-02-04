@@ -58,10 +58,27 @@ function App() {
     });
   };
 
+  const removeMovieHandler = async (id) => {
+    const response = await fetch(
+      `https://react-http-3e2e9-default-rtdb.firebaseio.com/movies/${id}.json`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+    setMovies((prevMovies) => {
+      return prevMovies.filter((prevMovie) => prevMovie.id !== id);
+    });
+  };
+
   let content = <p>No Movies Found</p>;
 
   if (movies.length > 0) {
-    content = <MoviesList movies={movies} />;
+    content = <MoviesList movies={movies} onRemoveMovie={removeMovieHandler} />;
   }
 
   if (error) {
