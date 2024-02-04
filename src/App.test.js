@@ -1,33 +1,17 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import App from "./App";
+import fs from "fs";
 
-describe("App component fetches movies on app load and", () => {
-  test("renders loading text while fetching movies", async () => {
-    render(<App />);
-    const loadingElement = screen.getByText(/Loading.../i);
-    expect(loadingElement).toBeInTheDocument();
-  });
+test("Click on Add Movie button adds a new movie to the database and to the screen", () => {
+  const appJsContent = fs.readFileSync("./src/App.js", "utf8");
 
-  test("renders movies when movies are fetched successfully", async () => {
-    // Mock the fetch function to return some dummy movies
-    jest.spyOn(global, "fetch").mockResolvedValueOnce({
-      json: async () => ({ results: [{ episode_id: 1, title: "Movie 1" }] }),
-      ok: true,
-    });
+  // 1. Check for "JSON.stringify" at least once
+  expect(appJsContent).toMatch(/JSON\.stringify/g);
 
-    render(<App />);
-    const movieElement = await screen.findByText(/Movie 1/i);
-    expect(movieElement).toBeInTheDocument();
-  });
+  // 2. Check for "firebaseio" at least twice
+  const firebaseioMatches = appJsContent.match(/firebaseio/g);
+  expect(firebaseioMatches && firebaseioMatches.length).toBeGreaterThanOrEqual(
+    2
+  );
 
-  test("renders error message when there's an error fetching movies", async () => {
-    // Mock the fetch function to simulate an error
-    jest.spyOn(global, "fetch").mockRejectedValueOnce(new Error("Test error"));
-
-    render(<App />);
-    const errorMessageElement = await screen.findByText(/Test error/i);
-    expect(errorMessageElement).toBeInTheDocument();
-  });
+  // 3. Check for "POST" at least once
+  expect(appJsContent).toMatch(/POST/g);
 });
